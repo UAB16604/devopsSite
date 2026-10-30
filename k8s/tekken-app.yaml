@@ -1,0 +1,157 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tekken-db-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tekken-db
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: tekken-db
+  template:
+    metadata:
+      labels:
+        app: tekken-db
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_DATABASE
+              value: tekken_tournament
+            - name: MYSQL_USER
+              value: tekken
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: tekken-db-secret
+                  key: DB_PASSWORD
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: tekken-db-secret
+                  key: DB_ROOT_PASSWORD
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - mysqladmin ping -h 127.0.0.1 -uroot -p"$MYSQL_ROOT_PASSWORD"
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            failureThreshold: 30
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+            - name: init
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: tekken-db-pvc
+        - name: init
+          configMap:
+            name: tekken-db-init
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tekken-db
+spec:
+  selector:
+    app: tekken-db
+  ports:
+    - port: 3306
+      targetPort: 3306
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tekken-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tekken-backend
+  template:
+    metadata:
+      labels:
+        app: tekken-backend
+    spec:
+      containers:
+        - name: backend
+          image: tekken-backend:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+          env:
+            - name: DB_HOST
+              value: tekken-db
+            - name: DB_USER
+              value: tekken
+            - name: DB_NAME
+              value: tekken_tournament
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: tekken-db-secret
+                  key: DB_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tekken-backend
+spec:
+  selector:
+    app: tekken-backend
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tekken-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tekken-frontend
+  template:
+    metadata:
+      labels:
+        app: tekken-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: tekken-frontend:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tekken-frontend
+spec:
+  type: NodePort
+  selector:
+    app: tekken-frontend
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30080

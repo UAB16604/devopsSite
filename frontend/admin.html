@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin - Tekken 8 Tournament</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="page">
+    <header><h1>Tekken 8 Tournament</h1></header>
+    <nav><a href="index.html">Home</a><a href="register.html">Register</a><a href="players.html">Players</a><a href="matches.html">Matches</a><a href="results.html">Results</a><a href="admin.html">Admin</a></nav>
+    <main>
+        <h2>Administrator</h2>
+        <label>Admin Password <input id="admin-password" type="password"></label>
+
+        <fieldset>
+            <legend>Add Match</legend>
+            <form id="add-match-form">
+                <label>Round <input type="text" name="round_name" required></label>
+                <label>Player 1 <select id="player1-id" name="player1_id"></select></label>
+                <label>Player 2 <select id="player2-id" name="player2_id"></select></label>
+                <label>Match Time <input type="datetime-local" name="match_time" required></label>
+                <button type="submit">Add Match</button>
+            </form>
+        </fieldset>
+
+        <fieldset>
+            <legend>Set Result</legend>
+            <form id="set-result-form">
+                <label>Match ID <input type="number" name="match_id" min="1" required></label>
+                <label>Winner <select id="winner-id" name="winner_id"></select></label>
+                <label>Score <input type="text" name="score" required></label>
+                <button type="submit">Save Result</button>
+            </form>
+        </fieldset>
+        <p id="admin-message"></p>
+    </main>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

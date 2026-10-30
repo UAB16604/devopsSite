@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Register - Tekken 8 Tournament</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="page">
+    <header><h1>Tekken 8 Tournament</h1></header>
+    <nav><a href="index.html">Home</a><a href="register.html">Register</a><a href="players.html">Players</a><a href="matches.html">Matches</a><a href="results.html">Results</a><a href="admin.html">Admin</a></nav>
+    <main>
+        <h2>Player Registration</h2>
+        <form id="registration-form">
+            <label>Gamer Tag <input type="text" name="gamer_tag" required></label>
+            <label>Full Name <input type="text" name="full_name" required></label>
+            <label>Email <input type="email" name="email" required></label>
+            <label>Country <input type="text" name="country" required></label>
+            <label>Main Character <input type="text" name="main_character" required></label>
+            <button type="submit">Register</button>
+        </form>
+        <p id="registration-message"></p>
+    </main>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

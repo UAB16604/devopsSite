@@ -1,0 +1,31 @@
+services:
+  tekken-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass123
+      MYSQL_DATABASE: tekken_tournament
+      MYSQL_USER: tekken
+      MYSQL_PASSWORD: tekkenpass123
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d:ro
+      - db_data:/var/lib/mysql
+
+  tekken-backend:
+    build: ./backend
+    environment:
+      DB_HOST: tekken-db
+      DB_USER: tekken
+      DB_PASS: tekkenpass123
+      DB_NAME: tekken_tournament
+    depends_on:
+      - tekken-db
+
+  tekken-frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - tekken-backend
+
+volumes:
+  db_data:
